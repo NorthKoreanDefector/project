@@ -23,6 +23,8 @@ class game():
         self.font = pygame.font.SysFont("Arial", 45, bold= True)
         self.takeTextPrev = self.font.render("Wait", True, black)
         self.name = ""
+        self.yChange = 0
+        self.constant = 3
 
     def update(self):
 
@@ -32,6 +34,7 @@ class game():
         pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
         self.screen.blit(self.preloadedData["distantCity"], (0, 0))
         self.screen.blit(self.map_img, self.camera.applyCameraRect(self.map_rect))
+        self.screen.blit(self.MovingMap_img, self.camera.applyCameraRect(self.MovingMap_rect))
         self.camera.updateCamera(player1)
         for sprite in allSprites:
             self.screen.blit(sprite.image, self.camera.applyCamera(sprite))
@@ -47,11 +50,15 @@ class game():
     def gameLoop(self):
 
         self.clock.tick(self.FPS)
+        self.loadMovingMapData()
         self.countFrames()
         self.event()
+        self.MovingPlatCollision()
         player1.move()
         self.isEnded = player1.ended()
         self.update()
+
+
 
     def countFrames(self):
         if self.frameCount == 12:
@@ -81,6 +88,26 @@ class game():
                 Platform(tile_object.x, tile_object.y, tile_object.width, tile_object.height)
             if tile_object.name == "Exit":
                 Exit(tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+
+    def loadMovingMapData(self):
+        if self.yChange > 300:
+            self.constant = -3
+        if self.yChange < 0:
+            self.constant = 3
+        self.yChange += self.constant
+
+        self.MovingMap = MovingTiledMap()
+        self.MovingMap_img = self.MovingMap.make_MovingMapSurface(self.yChange)
+        self.MovingMap_rect = self.MovingMap_img.get_rect()
+        for tile_object in self.MovingMap.MovingMap.objects:
+            if tile_object.name == "Moving Collision Box":
+                self.moving_platform = MovingPlatform(tile_object.x, tile_object.y + self.yChange,
+                                                      tile_object.width, tile_object.height)
+
+    def MovingPlatCollision(self):
+        hitsMoving = pygame.sprite.spritecollide(player1, MovingPlatformGroup, False)
+        if hitsMoving:
+            print("Collision")
 
 g = game()
 player1 = player()
