@@ -12,7 +12,7 @@ class player(pygame.sprite.Sprite):
         self.image = self.loadedData["ninjaIdle01"]
         self.rect = self.image.get_rect()
         self.rect.center = (1280/2, 720/2)
-        self.position = pygame.math.Vector2(640, 360)
+        self.position = pygame.math.Vector2(64, 1024)
         self.acceleration = pygame.math.Vector2(0, 0)
         self.velocity = pygame.math.Vector2(0, 0)
         self.friction = -0.18
@@ -121,8 +121,11 @@ class player(pygame.sprite.Sprite):
 
         hits = pygame.sprite.spritecollide(self, SolidGroup, False)
         if hits:
+            self.Grounded = True
             self.position.y = hits[0].rect.top
             self.velocity.y = 0
+        if not self.falling:
+            self.Grounded = True
 
         hitsPlatform = pygame.sprite.spritecollide(self, platformGroup, False)
         if hitsPlatform:
@@ -130,29 +133,67 @@ class player(pygame.sprite.Sprite):
             if self.up and not (self.left or self.right):
                 self.rect.top = hitsPlatform[0].rect.bottom + 1
                 self.velocity.y = 0
-                print(self.rect.top)
-                print(hitsPlatform[0].rect.bottom)
+                self.position = self.rect.midbottom
 
             if self.down and not (self.left or self.right):
-                pass
+                self.rect.bottom = hitsPlatform[0].rect.top
+                self.velocity.y = 0
+                self.position = self.rect.midbottom
 
             if self.left and not (self.up or self.down):
-                pass
+                if self.Grounded == True:
+                    self.rect.left = hitsPlatform[0].rect.right
+                    self.velocity.x = 0
+                    self.position = self.rect.midbottom
 
             if self.right and not (self.up or self.down):
-                pass
+                if self.Grounded == True:
+                    self.rect.right = hitsPlatform[0].rect.left
+                    self.velocity.x = 0
+                    self.position = self.rect.midbottom
+
 
             if self.up and self.left:
-                pass
+                if self.rect.top >= hitsPlatform[0].rect.bottom - 9:
+                    self.rect.top = hitsPlatform[0].rect.bottom + 1
+                    self.velocity.y = 0
+                    self.position = self.rect.midbottom
+                else:
+                    self.rect.left = hitsPlatform[0].rect.right
+                    self.velocity.x = 0
+                    self.position = self.rect.midbottom
 
             if self.down and self.left:
-                pass
+                if self.rect.bottom <= hitsPlatform[0].rect.top + 17:
+                    self.rect.bottom = hitsPlatform[0].rect.top
+                    self.velocity.y = 0
+                    self.position = self.rect.midbottom
+                else:
+                    self.rect.left = hitsPlatform[0].rect.right
+                    self.velocity.x = 0
+                    self.position = self.rect.midbottom
 
             if self.up and self.right:
-                pass
+                if self.rect.top >= hitsPlatform[0].rect.bottom - 9:
+                    self.rect.top = hitsPlatform[0].rect.bottom + 1
+                    self.velocity.y = 0
+                    self.position = self.rect.midbottom
+                else:
+                    self.rect.right = hitsPlatform[0].rect.left
+                    self.velocity.x = 0
+                    self.position = self.rect.midbottom
 
             if self.down and self.right:
-                pass
+                if self.rect.bottom <= hitsPlatform[0].rect.bottom + 17:
+                    self.rect.bottom = hitsPlatform[0].rect.top
+                    self.velocity.y = 0
+                    self.position = self.rect.midbottom
+                else:
+                    self.rect.right = hitsPlatform[0].rect.left
+                    self.velocity.x = 0
+                    self.position = self.rect.midbottom
+
+        self.rect.midbottom = self.position
 
     def ended(self):
         hitsExit = pygame.sprite.spritecollide(self, ExitGroup, False)
@@ -167,9 +208,11 @@ class player(pygame.sprite.Sprite):
         hitsPlatform = pygame.sprite.spritecollide(self, platformGroup, False)
         self.rect.y -= 1
         if hits:
-            self.velocity.y = -15
+            if hits[0].rect.top == self.rect.bottom:
+                self.velocity.y = -15
         if hitsPlatform:
-            self.velocity.y = -15
+            if hitsPlatform[0].rect.top == self.rect.bottom:
+                self.velocity.y = -15
 
     def animate(self):
         now = pygame.time.get_ticks()
