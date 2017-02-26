@@ -60,6 +60,27 @@ class TiledMap():
         self.renderMap(mapSurface)
         return mapSurface
 
+class MovingTiledMap():
+    def __init__(self):
+        self.MovingMap = pytmx.load_pygame("MovingMap.tmx")
+        self.MovingMapwidth = self.MovingMap.tilewidth * self.MovingMap.width
+        self.MovingMapheight = self.MovingMap.tileheight * self.MovingMap.height
+        self.yChange = 0
+
+    def renderMovingMap(self, surface, yChange):
+        for layer in self.MovingMap.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer):
+                for x,y,gid in layer:
+                    tile = self.MovingMap.get_tile_image_by_gid(gid)
+                    if tile:
+                        surface.blit(tile, (x * self.MovingMap.tilewidth, y * self.MovingMap.tileheight - yChange))
+
+    def make_MovingMapSurface(self, yChange):
+
+        MovingmapSurface = pygame.Surface((self.MovingMapwidth, self.MovingMapheight), pygame.SRCALPHA)
+        self.renderMovingMap(MovingmapSurface, yChange)
+        return MovingmapSurface
+
 class Collision(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         self.groups = SolidGroup
@@ -71,6 +92,20 @@ class Platform(pygame.sprite.Sprite):
         self.groups = platformGroup
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.rect = pygame.Rect(x, y, width, height)
+
+class MovingPlatform(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        self.groups = MovingPlatformGroup
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.rect = pygame.Rect(x, y, width, height)
+        self.boundaryBottom = 128
+        self.boundaryTop = 1088
+
+    def movePlatform(self):
+        self.rect.y =+ 3
+
+    def updatePlatform(self):
+        pass
 
 class Exit(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
