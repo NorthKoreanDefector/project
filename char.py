@@ -12,7 +12,7 @@ class player(pygame.sprite.Sprite):
         self.image = self.loadedData["ninjaIdle01"]
         self.rect = self.image.get_rect()
         self.rect.center = (1280/2, 720/2)
-        self.position = pygame.math.Vector2(64, 1024)
+        self.position = pygame.math.Vector2(512, 1024)
         self.acceleration = pygame.math.Vector2(0, 0)
         self.velocity = pygame.math.Vector2(0, 0)
         self.friction = -0.18
@@ -73,7 +73,7 @@ class player(pygame.sprite.Sprite):
 
     def checkFalling(self):
         self.rect.y += 1
-        if not pygame.sprite.spritecollideany(self, SolidGroup, False) and not (pygame.sprite.spritecollideany(self, platformGroup, False)):
+        if not pygame.sprite.spritecollideany(self, SolidGroup, False) and not (pygame.sprite.spritecollideany(self, platformGroup, False)) and not (pygame.sprite.spritecollideany(self, MovingPlatformGroup, False)):
                 self.falling = True
                 if self.velocity.y < 0:
                     self.up = True
@@ -89,7 +89,7 @@ class player(pygame.sprite.Sprite):
         self.rect.y -= 1
 
     def move(self):
-        #self.animate()
+        self.animate()
         self.checkFalling()
         if self.falling:
             self.acceleration = pygame.math.Vector2(0, 0.5)
