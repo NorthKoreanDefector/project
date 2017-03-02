@@ -98,11 +98,9 @@ class MovingPlatform(pygame.sprite.Sprite):
         self.groups = MovingPlatformGroup
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.rect = pygame.Rect(x, y, width, height)
-        self.boundaryBottom = 128
-        self.boundaryTop = 1088
 
-    def movePlatform(self):
-        self.rect.y =+ 3
+    def movePlatform(self, constant):
+        self.rect.y -= constant
 
     def updatePlatform(self):
         pass
